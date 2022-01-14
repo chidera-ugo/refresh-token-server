@@ -16,14 +16,15 @@ import { createAccessToken, createRefreshToken } from "../auth"
 import { isAuth } from "../middleware/isAuth"
 import { sendRefreshToken } from "../helpers/sendRefreshToken"
 import { getConnection } from "typeorm"
+import { verify } from "jsonwebtoken"
 
 @ObjectType()
 class FieldError {
 	@Field()
-	field: string
+	field!: string
 
 	@Field()
-	message: string
+	message!: string
 }
 
 // @ObjectType()
@@ -42,6 +43,9 @@ class LoginResponse {
 
 	@Field(() => [FieldError], { nullable: true })
 	errors?: FieldError[]
+
+	@Field(() => User, { nullable: true })
+	user?: User
 }
 
 @Resolver()
@@ -60,6 +64,25 @@ export class UserResolver {
 	@Query(() => [User])
 	users(): Promise<User[]> {
 		return User.find()
+	}
+
+	@Query(() => User, { nullable: true })
+	async me(@Ctx() context: Context) {
+		const authrorization = context.req.headers["authorization"]
+
+		if (!authrorization) {
+			return null
+		}
+
+		try {
+			const token = authrorization?.split(" ")[1]
+			const payload = verify(token, process.env.ACCESS_TOKEN_SECRET!) as any
+			context.tokenPayload = payload
+			return await User.findOne(payload.userId)
+		} catch (error) {
+			console.log(error)
+			return null
+		}
 	}
 
 	@Mutation(() => Boolean)
@@ -107,6 +130,7 @@ export class UserResolver {
 
 		return {
 			accessToken: createAccessToken(user),
+			user,
 		}
 	}
 
@@ -116,6 +140,12 @@ export class UserResolver {
 			.getRepository(User)
 			.increment({ id: userId }, "tokenVersion", 1)
 
+		return true
+	}
+
+	@Mutation(() => Boolean)
+	logout(@Ctx() { res }: Context) {
+		sendRefreshToken(res, "")
 		return true
 	}
 }

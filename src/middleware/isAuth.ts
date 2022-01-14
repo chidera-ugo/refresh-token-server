@@ -11,12 +11,11 @@ export const isAuth: MiddlewareFn<Context> = ({ context }, next) => {
 
 	try {
 		const token = authrorization?.split(" ")[1]
-
 		const payload = verify(token, process.env.ACCESS_TOKEN_SECRET!)
 		context.tokenPayload = payload as any
 	} catch (error) {
 		console.log(error)
-		throw new Error(error)
+		throw new Error("An error occurred")
 	}
 
 	return next()

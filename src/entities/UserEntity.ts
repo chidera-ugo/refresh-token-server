@@ -6,15 +6,15 @@ import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm"
 export class User extends BaseEntity {
 	@Field(() => Int)
 	@PrimaryGeneratedColumn()
-	id: number
+	id!: number
 
 	@Field()
 	@Column()
-	email: string
+	email!: string
 
 	@Column()
-	password: string
+	password!: string
 
 	@Column("int", { default: 0 })
-	tokenVersion: number
+	tokenVersion!: number
 }

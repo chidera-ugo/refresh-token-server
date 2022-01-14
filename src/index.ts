@@ -22,7 +22,7 @@ async function main() {
 	app.use(cookieParser())
 	await createConnection()
 
-	app.get("/refresh-token", async (req: Request, res: Response) => {
+	app.post("/refresh-token", async (req: Request, res: Response) => {
 		const token = req.cookies.jid
 
 		if (!token) {
