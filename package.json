@@ -28,9 +28,9 @@
 		"typeorm": "0.2.41"
 	},
 	"scripts": {
+		"watch": "tsc -w",
 		"start:pm2": "pm2 start dist/index.js",
 		"start": "nodemon --exec ts-node src/index.ts",
-		"watch": "tsc -w",
 		"typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js"
 	}
 }
